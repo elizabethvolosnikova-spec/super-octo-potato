@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><title>Кто выигрывает</title>
+<script src="assets/plotly.min.js"></script>
+<script src="assets/app.js"></script>
+<style>
+body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f3f5f7; color: #1f2937; }
+.topbar { background: #1c2b36; color: #fff; padding: 10px 24px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.topbar a { color: #cfd8dc; text-decoration: none; font-size: 14px; padding: 6px 10px; border-radius: 6px; }
+.topbar a:hover { background: #37474f; }
+.topbar a.active { background: #1565c0; color: #fff; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 24px; }
+h1 { font-size: 24px; margin: 0 0 6px; }
+h2 { font-size: 18px; margin-top: 26px; border-bottom: 2px solid #37474f; padding-bottom: 5px; }
+p { line-height: 1.55; }
+.kpi { display: inline-block; background: #fff; border-radius: 10px; padding: 12px 18px; margin: 6px 10px 6px 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); min-width: 150px; }
+.kpi .num { font-size: 26px; font-weight: 700; color: #0d47a1; }
+.kpi .lab { color: #607d8b; font-size: 13px; }
+.cards { display: flex; flex-wrap: wrap; gap: 12px; }
+.card { background: #fff; border-radius: 10px; padding: 14px 16px; flex: 1 1 300px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.card h3 { margin: 0 0 6px; font-size: 15px; }
+.card p { margin: 0; font-size: 13.5px; }
+table { border-collapse: collapse; background: #fff; width: 100%; font-size: 13.5px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+th, td { border: 1px solid #e2e8f0; padding: 7px 10px; text-align: center; }
+th { background: #37474f; color: #fff; cursor: pointer; user-select: none; }
+td.l { text-align: left; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-weight: 600; font-size: 12px; }
+img { width: 100%; border-radius: 8px; margin: 8px 0; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.note { background: #fff8e1; border-left: 4px solid #f9a825; padding: 10px 14px; border-radius: 4px; font-size: 13.5px; }
+a.dl { display: inline-block; margin: 4px 8px 4px 0; background: #1565c0; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; }
+a.dl:hover { background: #0d47a1; }
+input[data-target] { padding: 8px 12px; border: 1px solid #cfd8dc; border-radius: 8px; width: 320px; font-size: 14px; margin: 4px 0 12px; }
+.foot { margin-top: 28px; color: #90a4ae; font-size: 12px; }
+</style></head><body>
+<div class="topbar"><b style="color:#fff">ICJ 1947–2024</b><a href="index.html" class="">Главная</a><a href="who_wins.html" class="active">Кто выигрывает</a><a href="adhoc.html" class="">Судьи ad hoc</a><a href="disputes.html" class="">Типы споров</a><a href="stats.html" class="">Статистика</a><a href="data.html" class="">Данные</a></div>
+<div class="wrap">
+<h1>Кто выигрывает?</h1>
+<p><b>63 дел — ответчик, 39 — заявитель, 13 — смешанный исход.</b>
+Биномиальный тест: доля побед заявителя 38% значимо отличается от 50% (p = 0.022).</p>
+
+<div id="chartDecades"></div>
+<script>
+var D = [{"decade": 1947, "applicant_win": 4, "mixed": 0, "respondent_win": 7}, {"decade": 1957, "applicant_win": 4, "mixed": 0, "respondent_win": 7}, {"decade": 1967, "applicant_win": 4, "mixed": 0, "respondent_win": 4}, {"decade": 1977, "applicant_win": 2, "mixed": 4, "respondent_win": 2}, {"decade": 1987, "applicant_win": 1, "mixed": 2, "respondent_win": 5}, {"decade": 1997, "applicant_win": 6, "mixed": 3, "respondent_win": 18}, {"decade": 2007, "applicant_win": 7, "mixed": 4, "respondent_win": 12}, {"decade": 2017, "applicant_win": 11, "mixed": 0, "respondent_win": 8}];
+plotChart('chartDecades', [
+  {x: D.map(function(d){return d.decade + '–' + (d.decade + 9);}),
+    y: D.map(function(d){return d.applicant_win;}), name: 'Победил заявитель', type: 'bar', marker: {color: '#2e7d32'}},
+  {x: D.map(function(d){return d.decade + '–' + (d.decade + 9);}),
+    y: D.map(function(d){return d.mixed;}), name: 'Смешанный', type: 'bar', marker: {color: '#f9a825'}},
+  {x: D.map(function(d){return d.decade + '–' + (d.decade + 9);}),
+    y: D.map(function(d){return d.respondent_win;}), name: 'Победил ответчик', type: 'bar', marker: {color: '#1565c0'}}
+], {title: 'Исходы по десятилетиям (нажми на легенду — можно отключать категории)',
+    barmode: 'group', height: 420});
+</script>
+
+<p>1987–1996 — «дно» (12% побед заявителя), 2017–2024 — пик (58%). Линейного тренда нет (Cochran–Armitage p = 0.57).</p>
+<p class="foot">Сгенерировано build_site.py из данных Court of Justice.csv · 115 дел Международного суда ООН</p>
+</div>
+
+</body></html>

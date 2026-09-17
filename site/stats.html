@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><title>Статистическая проверка</title>
+<script src="assets/plotly.min.js"></script>
+<script src="assets/app.js"></script>
+<style>
+body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f3f5f7; color: #1f2937; }
+.topbar { background: #1c2b36; color: #fff; padding: 10px 24px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.topbar a { color: #cfd8dc; text-decoration: none; font-size: 14px; padding: 6px 10px; border-radius: 6px; }
+.topbar a:hover { background: #37474f; }
+.topbar a.active { background: #1565c0; color: #fff; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 24px; }
+h1 { font-size: 24px; margin: 0 0 6px; }
+h2 { font-size: 18px; margin-top: 26px; border-bottom: 2px solid #37474f; padding-bottom: 5px; }
+p { line-height: 1.55; }
+.kpi { display: inline-block; background: #fff; border-radius: 10px; padding: 12px 18px; margin: 6px 10px 6px 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); min-width: 150px; }
+.kpi .num { font-size: 26px; font-weight: 700; color: #0d47a1; }
+.kpi .lab { color: #607d8b; font-size: 13px; }
+.cards { display: flex; flex-wrap: wrap; gap: 12px; }
+.card { background: #fff; border-radius: 10px; padding: 14px 16px; flex: 1 1 300px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.card h3 { margin: 0 0 6px; font-size: 15px; }
+.card p { margin: 0; font-size: 13.5px; }
+table { border-collapse: collapse; background: #fff; width: 100%; font-size: 13.5px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+th, td { border: 1px solid #e2e8f0; padding: 7px 10px; text-align: center; }
+th { background: #37474f; color: #fff; cursor: pointer; user-select: none; }
+td.l { text-align: left; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-weight: 600; font-size: 12px; }
+img { width: 100%; border-radius: 8px; margin: 8px 0; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.note { background: #fff8e1; border-left: 4px solid #f9a825; padding: 10px 14px; border-radius: 4px; font-size: 13.5px; }
+a.dl { display: inline-block; margin: 4px 8px 4px 0; background: #1565c0; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; }
+a.dl:hover { background: #0d47a1; }
+input[data-target] { padding: 8px 12px; border: 1px solid #cfd8dc; border-radius: 8px; width: 320px; font-size: 14px; margin: 4px 0 12px; }
+.foot { margin-top: 28px; color: #90a4ae; font-size: 12px; }
+</style></head><body>
+<div class="topbar"><b style="color:#fff">ICJ 1947–2024</b><a href="index.html" class="">Главная</a><a href="who_wins.html" class="">Кто выигрывает</a><a href="adhoc.html" class="">Судьи ad hoc</a><a href="disputes.html" class="">Типы споров</a><a href="stats.html" class="active">Статистика</a><a href="data.html" class="">Данные</a></div>
+<div class="wrap">
+<h1>Статистическая проверка гипотез</h1>
+<p>Методы: биномиальный тест, точный тест Фишера, хи-квадрат, Cochran–Armitage, логистическая регрессия.
+Порог значимости α = 0.05. <b>Кликай по шапке таблицы — она сортируется.</b></p>
+<table id='statsTable'><tr><th onclick='sortTable(this)'>Гипотеза</th><th onclick='sortTable(this)'>Переменная/метод</th><th onclick='sortTable(this)'>Метод</th><th onclick='sortTable(this)'>Статистика</th><th onclick='sortTable(this)'>p-value</th><th onclick='sortTable(this)'>Вывод</th><th onclick='sortTable(this)'>Примечание</th></tr><tr><td class='l'>H1</td><td class='l'>победа заявителя ~ 50%</td><td>биномиальный тест</td><td>39/102 = 38.2%</td><td>0.0223</td><td><span class='badge' style='background:#e8f5e9;color:#1b5e20'>значимо</span></td><td class='l'>(ДИ 95%: 29%..48%)</td></tr><tr><td class='l'>H2</td><td class='l'>ad_hoc × победа заявителя</td><td>точный тест Фишера</td><td>OR=0.48</td><td>0.2356</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'>(таблица: ad hoc нет={0: np.int64(6), 1: np.int64(</td></tr><tr><td class='l'>H2b</td><td class='l'>«чаще против» × победа заявителя</td><td>точный тест Фишера</td><td>OR=0.98</td><td>1.0000</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'></td></tr><tr><td class='l'>H3</td><td class='l'>доля «против» ≠ 50%</td><td>биномиальный тест</td><td>215/426 = 50.5%</td><td>0.8845</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'>(близко к 50% — базовая проверка)</td></tr><tr><td class='l'>H3</td><td class='l'>тренд «против» по десятилетиям</td><td>Cochran-Armitage</td><td>z=5.10</td><td>0.0000</td><td><span class='badge' style='background:#e8f5e9;color:#1b5e20'>значимо</span></td><td class='l'>(периоды: [1940, 1950, 1960, 1970, 1980, 1990, 200</td></tr><tr><td class='l'>H4</td><td class='l'>исход × тип спора</td><td>хи-квадрат</td><td>chi2=22.32, V=0.31</td><td>0.0341</td><td><span class='badge' style='background:#e8f5e9;color:#1b5e20'>значимо</span></td><td class='l'>(ячейки <5: 48%)</td></tr><tr><td class='l'>H4</td><td class='l'>тип(4 группы) × победа заявителя</td><td>хи-квадрат</td><td>chi2=4.96</td><td>0.2918</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'></td></tr><tr><td class='l'>H5</td><td class='l'>gp_applicant</td><td>логистическая регрессия</td><td>coef=1.20</td><td>0.1516</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'></td></tr><tr><td class='l'>H5</td><td class='l'>gp_respondent</td><td>логистическая регрессия</td><td>coef=0.30</td><td>0.5751</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'></td></tr><tr><td class='l'>H6</td><td class='l'>доля побед по десятилетиям</td><td>Cochran-Armitage</td><td>z=0.56</td><td>0.5726</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'>(доли: {1947: np.float64(0.36363636363636365), 195</td></tr><tr><td class='l'>Главная</td><td class='l'>ad_hoc_present</td><td>логистическая регрессия</td><td>coef=-0.06</td><td>0.9447</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'></td></tr><tr><td class='l'>Главная</td><td class='l'>year_c</td><td>логистическая регрессия</td><td>coef=0.19</td><td>0.0773</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'></td></tr><tr><td class='l'>Главная</td><td class='l'>gp_applicant</td><td>логистическая регрессия</td><td>coef=1.45</td><td>0.1539</td><td><span class='badge' style='background:#f5f5f5;color:#757575'>не значимо</span></td><td class='l'></td></tr></table>
+<div class="note">Полный код: <i>hypothesis_tests.py</i>. CSV-протокол: <a href="data/hypothesis_results.csv">hypothesis_results.csv</a>.</div>
+<p class="foot">Сгенерировано build_site.py из данных Court of Justice.csv · 115 дел Международного суда ООН</p>
+</div>
+
+</body></html>
